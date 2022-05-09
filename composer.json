@@ -1,0 +1,16 @@
+{
+    "name": "vd/php-framework",
+    "description": "just a demo framework",
+    "authors": [
+        {
+            "name": "Pawanyyy",
+            "email": "Pawanyyy01@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "app\\":"./"
+        }
+    },
+    "require": {}
+}
