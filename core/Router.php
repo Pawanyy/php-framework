@@ -25,9 +25,36 @@ class Router{
         $callback = $this->routes[$method][$path] ?? false;
 
         if($callback === false){
-            die("Not Found");
+            $this->NotFound();
         }
 
-        call_user_func($callback);
+        if( is_string($callback)){
+            return $this->renderView($callback);
+        }
+
+        return call_user_func($callback);
     }
+
+    public function renderView($view)
+    {
+        $file_location = Application::$ROOT_DIR . "/views/$view.php";
+        
+        if(file_exists($file_location)){
+            
+            include_once $file_location;
+
+        } else{
+
+            $this->NotFound();
+
+        }
+    }
+
+    public function NotFound()
+    {
+        http_response_code(404);
+        echo "Not Found!!!";
+        exit;
+    }
+
 }

@@ -3,10 +3,14 @@
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 use app\core\Application;
 
-$app = new Application();
+$app = new Application(dirname(__DIR__));
 
 $app->router->get('/', function(){
     echo 'Hello world';
 });
+
+$app->router->get('/home', 'home');
+
+$app->router->get('/contact', 'contact');
 
 $app->run();
