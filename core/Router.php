@@ -5,17 +5,24 @@ namespace app\core;
 class Router{
 
     public Request $request;
+    public Response $response;
     protected array $routes = [];
 
     
-    public function __construct(\app\core\Request $request)
+    public function __construct(Request $request, Response $response)
     {
         $this->request = $request;
+        $this->response = $response;
     }
 
     public function get(string $path, $callback)
     {
         $this->routes['get'][$path] = $callback;
+    }
+
+    public function post(string $path, $callback)
+    {
+        $this->routes['post'][$path] = $callback;
     }
 
     public function resolve()
@@ -25,7 +32,9 @@ class Router{
         $callback = $this->routes[$method][$path] ?? false;
 
         if($callback === false){
-            $this->NotFound();
+            $this->response->setStatusCode(404);
+            $viewContent = $this->renderOnlyView('_404');
+            return $this->renderContent($viewContent);
         }
 
         if( is_string($callback)){
@@ -37,24 +46,34 @@ class Router{
 
     public function renderView($view)
     {
-        $file_location = Application::$ROOT_DIR . "/views/$view.php";
+
+        $layoutContent = $this->layoutContent();
         
-        if(file_exists($file_location)){
-            
-            include_once $file_location;
+        $viewContent = $this->renderOnlyView($view);
 
-        } else{
+        return str_replace("{{content}}", $viewContent, $layoutContent);
 
-            $this->NotFound();
-
-        }
     }
 
-    public function NotFound()
+    public function layoutContent()
     {
-        http_response_code(404);
-        echo "Not Found!!!";
-        exit;
+        ob_start();
+        include_once Application::$ROOT_DIR . "/views/layouts/main.php";
+        return ob_get_clean();
+    }
+
+    protected function renderOnlyView($view)
+    {
+        ob_start();
+        include_once Application::$ROOT_DIR . "/views/$view.php";
+        return ob_get_clean();
+    }
+
+    protected function renderContent($viewContent)
+    {
+        $layoutContent = $this->layoutContent();
+
+        return str_replace("{{content}}", $viewContent, $layoutContent);
     }
 
 }
